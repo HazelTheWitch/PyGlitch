@@ -1,4 +1,5 @@
 from abc import ABC as _ABC
+import random as _random
 
 # Section/Interval Operations
 
@@ -135,13 +136,13 @@ def siMinus(s0, s1):
     return secs
 
 
-class SectionGenerator( _ABC):
+class SectionGenerator(_ABC):
     def __init__(self, seed=None):
         self.seed = seed
 
     def generate(self, xRange, *, _doSeed=True):
         if _doSeed:
-            random.seed(self.seed)
+            _random.seed(self.seed)
         return []
 
     def __add__(self, O):
@@ -160,7 +161,7 @@ class SectionGenerator( _ABC):
         return MinusSectionGenerator(self, O)
 
 
-class OrSectionGenerator(SectionGenerator,  _ABC):
+class OrSectionGenerator(SectionGenerator, _ABC):
     def __init__(self, sg0, sg1):
         super().__init__(seed=sg0.seed)
         self.sg0 = sg0
@@ -170,7 +171,7 @@ class OrSectionGenerator(SectionGenerator,  _ABC):
         return siOr(self.sg0.generate(xRange, _doSeed=_doSeed), self.sg1.generate(xRange, _doSeed=_doSeed))
 
 
-class AndSectionGenerator(SectionGenerator,  _ABC):
+class AndSectionGenerator(SectionGenerator, _ABC):
     def __init__(self, sg0, sg1):
         super().__init__(seed=sg0.seed)
         self.sg0 = sg0
@@ -180,7 +181,7 @@ class AndSectionGenerator(SectionGenerator,  _ABC):
         return siAnd(self.sg0.generate(xRange, _doSeed=_doSeed), self.sg1.generate(xRange, _doSeed=_doSeed))
 
 
-class XorSectionGenerator(SectionGenerator,  _ABC):
+class XorSectionGenerator(SectionGenerator, _ABC):
     def __init__(self, sg0, sg1):
         super().__init__(seed=sg0.seed)
         self.sg0 = sg0
@@ -190,7 +191,7 @@ class XorSectionGenerator(SectionGenerator,  _ABC):
         return siXor(self.sg0.generate(xRange, _doSeed=_doSeed), self.sg1.generate(xRange, _doSeed=_doSeed))
 
 
-class MinusSectionGenerator(SectionGenerator,  _ABC):
+class MinusSectionGenerator(SectionGenerator, _ABC):
     def __init__(self, sg0, sg1):
         super().__init__(seed=sg0.seed)
         self.sg0 = sg0
@@ -200,7 +201,7 @@ class MinusSectionGenerator(SectionGenerator,  _ABC):
         return siMinus(self.sg0.generate(xRange, _doSeed=_doSeed), self.sg1.generate(xRange, _doSeed=_doSeed))
 
 
-class PixelFunction( _ABC):
+class PixelFunction(_ABC):
     def __init__(self, coeff=1):
         self.coeff = coeff
 
@@ -222,7 +223,7 @@ class PixelFunction( _ABC):
         return self
 
 
-class SumPixelFunction(PixelFunction,  _ABC):
+class SumPixelFunction(PixelFunction, _ABC):
     def __init__(self, f0, f1):
         super().__init__()
 
@@ -236,13 +237,13 @@ class SumPixelFunction(PixelFunction,  _ABC):
         return self
 
 
-class IntervalGenerator( _ABC):
+class IntervalGenerator(_ABC):
     def __init__(self, seed=None):
         self.seed = seed
 
     def generate(self, row, *, _doSeed=True):
         if _doSeed:
-            random.seed(self.seed)
+            _random.seed(self.seed)
 
         return []
 
@@ -262,7 +263,7 @@ class IntervalGenerator( _ABC):
         return MinusIntervalGenerator(self, O)
 
 
-class OrIntervalGenerator(IntervalGenerator,  _ABC):
+class OrIntervalGenerator(IntervalGenerator, _ABC):
     def __init__(self, ig0, ig1):
         super().__init__(seed=ig0.seed)
         self.ig0 = ig0
@@ -272,7 +273,7 @@ class OrIntervalGenerator(IntervalGenerator,  _ABC):
         return siOr(self.ig0.generate(row, _doSeed=_doSeed), self.ig1.generate(row, _doSeed=_doSeed))
 
 
-class AndIntervalGenerator(IntervalGenerator,  _ABC):
+class AndIntervalGenerator(IntervalGenerator, _ABC):
     def __init__(self, ig0, ig1):
         super().__init__(seed=ig0.seed)
         self.ig0 = ig0
@@ -282,7 +283,7 @@ class AndIntervalGenerator(IntervalGenerator,  _ABC):
         return siAnd(self.ig0.generate(row, _doSeed=_doSeed), self.ig1.generate(row, _doSeed=_doSeed))
 
 
-class XorIntervalGenerator(IntervalGenerator,  _ABC):
+class XorIntervalGenerator(IntervalGenerator, _ABC):
     def __init__(self, ig0, ig1):
         super().__init__(seed=ig0.seed)
         self.ig0 = ig0
@@ -292,7 +293,7 @@ class XorIntervalGenerator(IntervalGenerator,  _ABC):
         return siXor(self.ig0.generate(row, _doSeed=_doSeed), self.ig1.generate(row, _doSeed=_doSeed))
 
 
-class MinusIntervalGenerator(IntervalGenerator,  _ABC):
+class MinusIntervalGenerator(IntervalGenerator, _ABC):
     def __init__(self, ig0, ig1):
         super().__init__(seed=ig0.seed)
         self.ig0 = ig0
@@ -302,20 +303,20 @@ class MinusIntervalGenerator(IntervalGenerator,  _ABC):
         return siMinus(self.ig0.generate(row, _doSeed=_doSeed), self.ig1.generate(row, _doSeed=_doSeed))
 
 
-class ImageFilter( _ABC):
+class ImageFilter(_ABC):
     def __init__(self, seed=None):
         self.seed = seed
 
     def apply(self, image, verbose=False, *, _doSeed=True):
         if _doSeed:
-            random.seed(self.seed)
+            _random.seed(self.seed)
         return image.copy()
 
     def applyChannelwise(self, image, red=True, green=True, blue=True, alpha=False, *, _doSeed=True):
         r, g, b, a = image.convert('RGBA').split()
 
         if _doSeed:
-            random.seed(self.seed)
+            _random.seed(self.seed)
 
         if red:
             logging.log(9, f'Apply imageFilter {repr(self)} to red channel')

@@ -1,4 +1,4 @@
-import random as _random
+import _random as _random
 import numpy as _np
 from math import exp as _exp
 
@@ -178,22 +178,22 @@ class MaxRGBPixelFunction(PixelFunction):
 
 class HuePixelFunction(PixelFunction):
     def getValue(self, r, g, b):
-        return rgb_to_hsv(r/256, g/256, b/256)[0]
+        return _rgb_to_hsv(r/256, g/256, b/256)[0]
 
 
 class SaturationPixelFunction(PixelFunction):
     def getValue(self, r, g, b):
-        return rgb_to_hsv(r/256, g/256, b/256)[1]
+        return _rgb_to_hsv(r/256, g/256, b/256)[1]
 
 
 class ValuePixelFunction(PixelFunction):
     def getValue(self, r, g, b):
-        return rgb_to_hsv(r/256, g/256, b/256)[2]
+        return _rgb_to_hsv(r/256, g/256, b/256)[2]
 
 
 class LightnessPixelFunction(PixelFunction):
     def getValue(self, r, g, b):
-        return rgb_to_hls(r/256, g/256, b/256)[2]
+        return _rgb_to_hls(r/256, g/256, b/256)[2]
 
 
 class FullIntervalGenerator(IntervalGenerator):
@@ -353,7 +353,7 @@ class ShiftFilter(ImageFilter):
 
         sections = self.sectionGenerator.generate(xRange)
 
-        logging.log(8, f'{len(sections)} sections found')
+        _logging.log(8, f'{len(sections)} sections found')
 
         for s in sections:
             x0, x1 = s
@@ -366,11 +366,11 @@ class ShiftFilter(ImageFilter):
 
             sAmount = self.shiftFunction(s)
 
-            logging.log(8, f'Shifting section {s} {sAmount} pixels')
+            _logging.log(8, f'Shifting section {s} {sAmount} pixels')
 
             A[I] = _np.roll(A[I], sAmount, axis=self.shiftAxis)
 
-        return Image.fromarray(A)
+        return _Image.fromarray(A)
 
     @staticmethod
     def constantShift(delta):
@@ -419,7 +419,7 @@ class PixelSortFilter(ImageFilter):
         if angle != 0:
             if mask is None:
                 M = _np.ones(oSize, dtype=_np.uint8) * 255
-                mask = Image.fromarray(M)
+                mask = _Image.fromarray(M)
 
             mask = mask.rotate(angle, expand=True)
 
@@ -438,7 +438,7 @@ class PixelSortFilter(ImageFilter):
 
         sections = self.sectionGenerator.generate(xRange)
 
-        logging.log(9, f'Found {len(sections)} sections')
+        _logging.log(9, f'Found {len(sections)} sections')
 
         pixelsSorted = 0
         intervalsSorted = 0
@@ -448,7 +448,7 @@ class PixelSortFilter(ImageFilter):
 
             I0 = [slice(L) for L in A.shape]
 
-            logging.log(8, f'Sorting section {s}')
+            _logging.log(8, f'Sorting section {s}')
 
             for i in range(x0, x1):
                 I0[self.axis] = i
@@ -466,29 +466,30 @@ class PixelSortFilter(ImageFilter):
 
                 pToSort = sum(map(lambda i: i[1] - i[0], intervals))
                 pixelsSorted += pToSort
-                logging.log(
+                _logging.log(
                     7, f'Sorting index {i} in section {s} - {len(intervals)} intervals - {pToSort} pixels to sort')
                 I1 = [slice(L) for L in A.shape]
                 I1[self.axis] = i
 
                 for i0, i1 in intervals:
-                    logging.log(
+                    _logging.log(
                         6, f'Sorting interval {(i0, i1)} in section {s}')
                     I1[self.sortAxis] = slice(i0, i1)
 
                     I = tuple(I1)
 
-                    A[I] = sorted(A[I], key=lambda p: self.sortingFunction.process(
-                        *p), reverse=self.reverse)
+                    sA = sorted(A[I], key=lambda p: self.sortingFunction.process(*p), reverse=self.reverse)
+
+                    A[I] = sA
 
         if mask is not None and maskAfter:
-            logging.log(9, f'Applying Mask')
+            _logging.log(9, f'Applying Mask')
             A[M] = A0[M]
 
-        logging.log(
+        _logging.log(
             9, f'Sorted {pixelsSorted} pixels in {intervalsSorted} intervals across {len(sections)} sections')
 
-        image = Image.fromarray(A)
+        image = _Image.fromarray(A)
 
         if angle != 0:
             oSize = list(reversed(oSize))
