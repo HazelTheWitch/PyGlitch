@@ -32,7 +32,13 @@ sortFilter0 = pyglitch.PixelSortFilter(
 intervalGenerator1 = pyglitch.PixelFunctionIntervalGenerator(
     pyglitch.LightnessPixelFunction(),
     lo=0.5,
-    up=0.747
+    up=0.74
+) + pyglitch.WaveIntervalGenerator(
+    0.05, percent=True
+) - pyglitch.PixelFunctionIntervalGenerator(
+    pyglitch.LightnessPixelFunction(),
+    lo=0.0,
+    up=0.3
 )
 
 sortingFunction1 = pyglitch.LightnessPixelFunction()
@@ -40,8 +46,7 @@ sortingFunction1 = pyglitch.LightnessPixelFunction()
 sortFilter1 = pyglitch.PixelSortFilter(
     intervalGenerator1,
     sortingFunction1,
-    axis=1,
-    reverse=False
+    axis=1
 )
 
 logging.getLogger().setLevel(7)

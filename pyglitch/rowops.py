@@ -213,6 +213,43 @@ class InPhasePixelFunction(PixelFunction):
         return _rgb_to_yiq(r/256, g/256, b/256)[1]
 
 
+class StepPixelFunction(PixelFunction):
+    '''Step sorting algorithm as described in https://www.alanzucconi.com/2015/09/30/colour-sorting/'''
+    def __init__(self, steps, smooth=True, coeff=1):
+        super().__init__(coeff=coeff)
+
+        self.steps = steps
+        self.smooth = smooth
+
+    def getValue(self, r, g, b):
+        r /= 256
+        g /= 256
+        b /= 256
+
+        lum = _sqrt(0.241*r + 0.691*g + 0.068*b)
+        h, _, v = _rgb_to_hsv(r, g, b)
+
+        h2 = int(h * self.steps)
+        lum2 = int(lum * self.steps)
+        v2 = int(v * self.steps)
+
+        if self.smooth and h2 % 2 == 1:
+            v2 = self.steps - v2
+            lum2 = self.steps - lum2
+
+        return (h2, lum2, v2)
+
+
+class TuplePixelFunction(PixelFunction):
+    def __init__(self, *pixelFunctions, coeff=1):
+        super().__init__(coeff=coeff)
+
+        self.pixelFunctions = pixelFunctions
+    
+    def getValue(self, r, g, b):
+        return tuple(map(lambda pf: pf.getValue(r, g, b), self.pixelFunctions))
+
+
 class FullIntervalGenerator(IntervalGenerator):
     def generate(self, row, *, _doSeed=True):
         super().generate(row, _doSeed=_doSeed)
@@ -289,10 +326,16 @@ class PixelFunctionIntervalGenerator(IntervalGenerator):
         intervals = []
 
         X = 0
-        inSection = self.inRange(self.pixelFunction.process(*row[0, :]))
+        r = self.pixelFunction.process(*row[0, :])
+        if type(r) == tuple:
+            r = r[0]
+        inSection = self.inRange(r)
 
         for i in range(1, L):
-            aboveCutoff = self.inRange(self.pixelFunction.process(*row[i, :]))
+            r = self.pixelFunction.process(*row[i, :])
+            if type(r) == tuple:
+                r = r[0]
+            aboveCutoff = self.inRange(r)
             if inSection:
                 if not aboveCutoff:
                     intervals.append((X, i))
@@ -368,7 +411,7 @@ class ExpandingIntervalGenerator(IntervalGenerator):
             x0 = max(0, x0 - dx)
             x1 = min(L, x1 + dx)
 
-            newIntervals.append((x0, x1))
+            newIntervals.append((int(x0), int(x1)))
         
         return verifySI(newIntervals)
 
