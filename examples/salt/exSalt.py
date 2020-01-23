@@ -1,4 +1,5 @@
 # Set working directory
+from PIL import Image as _Image
 import os
 import sys
 
@@ -7,7 +8,6 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 # salt
 
 import logging
-from PIL import Image
 import pyglitch
 
 intervalGenerator = pyglitch.PixelFunctionIntervalGenerator(  # Intervals based on PixelFunction
@@ -25,4 +25,4 @@ sortFilter = pyglitch.PixelSortFilter(
 
 logging.getLogger().setLevel(7)  # Set logging level to view progress
 
-sortFilter.apply(Image.open('salt.jpg')).save('salt_0.jpg')
+sortFilter.apply(_Image.open('salt.jpg')).save('salt_0.jpg')

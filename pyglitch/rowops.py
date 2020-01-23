@@ -1,4 +1,4 @@
-import _random as _random
+import random as _random
 import numpy as _np
 from math import exp as _exp
 
@@ -21,7 +21,7 @@ def _sigmoidProb(maxY):
     invMaxY = 1 / maxY
 
     def sigmoidProb(y):
-        return _random.random() < 1 / (1 + exp(-y * invMaxY))
+        return _random.random() < 1 / (1 + _exp(-y * invMaxY))
     return sigmoidProb
 
 # Max Functions
@@ -147,7 +147,7 @@ class UniformSectionGenerator(SectionGenerator):
 
         if not (0 < self.sectionCount < xRange // 2):
             raise ValueError(
-                f'`sectionCount` must be greater than 0 and less than `xRange // 2` not {sectionCount}')
+                f'`sectionCount` must be greater than 0 and less than `xRange // 2` not {self.sectionCount}')
 
         xS = set()
 

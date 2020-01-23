@@ -1,6 +1,10 @@
 from abc import ABC as _ABC
 import random as _random
 
+from PIL import Image as _Image
+
+import logging as _logging
+
 # Section/Interval Operations
 
 
@@ -319,16 +323,16 @@ class ImageFilter(_ABC):
             _random.seed(self.seed)
 
         if red:
-            logging.log(9, f'Apply imageFilter {repr(self)} to red channel')
+            _logging.log(9, f'Apply imageFilter {repr(self)} to red channel')
             r = self.apply(r.convert('RGBA'), _doSeed=False).convert('L')
         if green:
-            logging.log(9, f'Apply imageFilter {repr(self)} to green channel')
+            _logging.log(9, f'Apply imageFilter {repr(self)} to green channel')
             g = self.apply(g.convert('RGBA'), _doSeed=False).convert('L')
         if blue:
-            logging.log(9, f'Apply imageFilter {repr(self)} to blue channel')
+            _logging.log(9, f'Apply imageFilter {repr(self)} to blue channel')
             b = self.apply(b.convert('RGBA'), _doSeed=False).convert('L')
         if alpha:
-            logging.log(9, f'Apply imageFilter {repr(self)} to alpha channel')
+            _logging.log(9, f'Apply imageFilter {repr(self)} to alpha channel')
             a = self.apply(a.convert('RGBA'), _doSeed=False).convert('L')
 
-        return Image.merge('RGBA', (r, g, b, a))
+        return _Image.merge('RGBA', (r, g, b, a))

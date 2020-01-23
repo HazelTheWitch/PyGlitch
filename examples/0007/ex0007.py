@@ -6,7 +6,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 
 # 0007
 import pyglitch
-from PIL import Image
+from PIL import Image as _Image
 import logging
 
 
@@ -24,4 +24,4 @@ sortFilter = pyglitch.PixelSortFilter(intervalGenerator, sortingFunction, axis=1
 
 logging.getLogger().setLevel(7) # Set logging level to view progress
 
-sortFilter.apply(Image.open('0007.png')).save('0007_0.png')
+sortFilter.apply(_Image.open('0007.png')).save('0007_0.png')
