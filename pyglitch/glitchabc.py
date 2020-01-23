@@ -207,13 +207,17 @@ class MinusSectionGenerator(SectionGenerator, _ABC):
 
 class PixelFunction(_ABC):
     def __init__(self, coeff=1):
+        self._memoizedValues = {}
         self.coeff = coeff
 
     def getValue(self, r, g, b):
         return 0
 
     def process(self, r, g, b):
-        return self.getValue(r, g, b) * self.coeff
+        v = (r, g, b)
+        if v not in self._memoizedValues:
+            self._memoizedValues[v] = self.getValue(r, g, b)
+        return self._memoizedValues[v] * self.coeff
 
     def __add__(self, O):
         return SumPixelFunction(self, O)
