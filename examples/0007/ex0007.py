@@ -18,7 +18,7 @@ intervalGenerator = pyglitch.PixelFunctionIntervalGenerator( # Intervals based o
 
  # Pixels are sorted within intervals by the sorting function, PixelFunctions can be easily added/multiplied
  # PixelFunctions are not recreated when operated on
-sortingFunction = pyglitch.LightnessPixelFunction()
+sortingFunction = pyglitch.SaturationPixelFunction()
 
 sortFilter = pyglitch.PixelSortFilter(intervalGenerator, sortingFunction, axis=1, reverse=True)
 

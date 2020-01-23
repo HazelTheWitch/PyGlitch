@@ -193,7 +193,7 @@ class ValuePixelFunction(PixelFunction):
 
 class LightnessPixelFunction(PixelFunction):
     def getValue(self, r, g, b):
-        return _rgb_to_hls(r/256, g/256, b/256)[2]
+        return _rgb_to_hls(r/256, g/256, b/256)[1]
 
 
 class FullIntervalGenerator(IntervalGenerator):
