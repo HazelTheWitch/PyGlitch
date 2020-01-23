@@ -478,7 +478,7 @@ class PixelSortFilter(ImageFilter):
 
                     I = tuple(I1)
 
-                    sA = sorted(A[I], key=lambda p: self.sortingFunction.process(*p), reverse=self.reverse)
+                    sA = _np.array(sorted(A[I], key=lambda p: self.sortingFunction.process(*p), reverse=self.reverse))
 
                     A[I] = sA
 
