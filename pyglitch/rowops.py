@@ -10,6 +10,8 @@ from colorsys import rgb_to_hsv as _rgb_to_hsv, rgb_to_hls as _rgb_to_hls
 
 from .glitchabc import siOr, siAnd, siXor, siMinus, SectionGenerator, OrSectionGenerator, AndSectionGenerator, XorSectionGenerator, MinusSectionGenerator, PixelFunction, SumPixelFunction, IntervalGenerator, OrIntervalGenerator, AndIntervalGenerator, XorIntervalGenerator, MinusIntervalGenerator, ImageFilter
 
+from .siOperations import siOr, siAnd, siXor, siMinus, verifySI
+
 # Probability Functions
 def _uniformProb(maxY):
     def uniform(y):
@@ -295,16 +297,16 @@ class CappingIntervalGenerator(IntervalGenerator):
     def __init__(self, intervalGenerator, maxIntervalSize, percent=False):
         super().__init__(seed=intervalGenerator.seed)
 
-        self.maxIntervalSize = maxIntervalSize
         self.intervalGenerator = intervalGenerator
 
+        self.maxIntervalSize = maxIntervalSize
         self.percent = percent
 
     def generate(self, row, *, _doSeed=True):
         intervals = self.intervalGenerator.generate(row, _doSeed=_doSeed)
         newIntervals = []
 
-        maxIntervalSize = self.maxIntervalSize
+        maxIntervalSize = self.maxIntervalSize 
 
         if self.percent:
             L = row.shape[0]
@@ -319,6 +321,42 @@ class CappingIntervalGenerator(IntervalGenerator):
             newIntervals.append((x0, x1))
 
         return newIntervals
+
+
+class ExpandingIntervalGenerator(IntervalGenerator):
+    def __init__(self, intervalGenerator, increaseSize, percent=False):
+        super().__init__(seed=intervalGenerator.seed)
+
+        self.intervalGenerator = intervalGenerator
+
+        self.increaseSize = increaseSize / 2
+        self.percent = percent
+
+        if not percent:
+            self.increaseSize = int(self.increaseSize)
+
+    def generate(self, row, *, _doSeed=True):
+        intervals = self.intervalGenerator.generate(row, _doSeed=_doSeed)
+
+        L = row.shape[0]
+
+        newIntervals = []
+
+        for x0, x1 in intervals:
+            s = x1 - x0
+
+            if self.percent:
+                dx = self.increaseSize * s // 2
+            else:
+                dx = self.increaseSize
+
+            x0 = max(0, x0 - dx)
+            x1 = min(L, x1 + dx)
+
+            newIntervals.append((x0, x1))
+        
+        return verifySI(newIntervals)
+
 
 
 class ShiftFilter(ImageFilter):
