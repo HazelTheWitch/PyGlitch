@@ -1,12 +1,12 @@
 import random as _random
 import numpy as _np
-from math import exp as _exp
+from math import exp as _exp, sqrt as _sqrt
 
 from PIL import Image as _Image
 
 import logging as _logging
 
-from colorsys import rgb_to_hsv as _rgb_to_hsv, rgb_to_hls as _rgb_to_hls
+from colorsys import rgb_to_hsv as _rgb_to_hsv, rgb_to_hls as _rgb_to_hls, rgb_to_yiq as _rgb_to_yiq
 
 from .glitchabc import siOr, siAnd, siXor, siMinus, SectionGenerator, OrSectionGenerator, AndSectionGenerator, XorSectionGenerator, MinusSectionGenerator, PixelFunction, SumPixelFunction, IntervalGenerator, OrIntervalGenerator, AndIntervalGenerator, XorIntervalGenerator, MinusIntervalGenerator, ImageFilter
 
@@ -178,6 +178,16 @@ class MaxRGBPixelFunction(PixelFunction):
         return max(r, g, b)/256
 
 
+class MinRGBPixelFunction(PixelFunction):
+    def getValue(self, r, g, b):
+        return min(r, g, b)/256
+
+
+class AverageRGBPixelFunction(PixelFunction):
+    def getValue(self, r, g, b):
+        return sum(r, g, b)/768
+
+
 class HuePixelFunction(PixelFunction):
     def getValue(self, r, g, b):
         return _rgb_to_hsv(r/256, g/256, b/256)[0]
@@ -196,6 +206,11 @@ class ValuePixelFunction(PixelFunction):
 class LightnessPixelFunction(PixelFunction):
     def getValue(self, r, g, b):
         return _rgb_to_hls(r/256, g/256, b/256)[1]
+
+
+class InPhasePixelFunction(PixelFunction):
+    def getValue(self, r, g, b):
+        return _rgb_to_yiq(r/256, g/256, b/256)[1]
 
 
 class FullIntervalGenerator(IntervalGenerator):
@@ -262,9 +277,9 @@ class PixelFunctionIntervalGenerator(IntervalGenerator):
 
     def inRange(self, v):
         if self.lo < self.up:
-            return self.lo < v < self.up
+            return self.lo <= v <= self.up
         else:
-            return not (self.up < v < self.lo)
+            return not (self.up <= v <= self.lo)
 
     def generate(self, row, *, _doSeed=True):
         super().generate(row, _doSeed=_doSeed)
