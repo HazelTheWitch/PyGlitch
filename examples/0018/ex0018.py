@@ -13,8 +13,8 @@ import logging
 
 intervalGenerator0 = pyglitch.PixelFunctionIntervalGenerator(
     pyglitch.HuePixelFunction(),
-    lo=0.9,
-    up=0.1
+    lo=0.85,
+    up=0.15
 ) & pyglitch.PixelFunctionIntervalGenerator(
     pyglitch.LightnessPixelFunction(),
     lo=0.4,
@@ -22,15 +22,14 @@ intervalGenerator0 = pyglitch.PixelFunctionIntervalGenerator(
 )
 
 intervalGenerator0 = pyglitch.ExpandingIntervalGenerator(
-    intervalGenerator0, 50) + pyglitch.WaveIntervalGenerator(0.04, percent=True)
+    intervalGenerator0, 50) + pyglitch.WaveIntervalGenerator(0.13, percent=True)
 
-sortingFunction0 = pyglitch.SaturationPixelFunction()
+sortingFunction0 = pyglitch.LightnessPixelFunction()
 
 sortFilter0 = pyglitch.PixelSortFilter(
     intervalGenerator0,
     sortingFunction0,
-    axis=0,
-    reverse=True
+    axis=1
 )
 
 logging.getLogger().setLevel(7)
