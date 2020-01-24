@@ -9,6 +9,6 @@ setup(
     packages=find_packages(include=['pyglitch', 'pyglitch.*']),
     install_requires=[
         'numpy==1.18.1',
-        'PIL==1.1.6'
+        'Pillow==7.0.0'
     ]
 )
