@@ -2,3 +2,5 @@
 pyglitch/__pycache__/
 
 \.vscode/
+
+examples/testing/
