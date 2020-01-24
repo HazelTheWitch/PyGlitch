@@ -313,10 +313,71 @@ class PixelFunctionIntervalGenerator(IntervalGenerator):
         self.up = up
 
     def inRange(self, v):
-        if self.lo < self.up:
+        if self.lo <= self.up:
             return self.lo <= v <= self.up
         else:
             return not (self.up <= v <= self.lo)
+    
+    def _test(self, iteration, A, v, baseValue, totalPixels, sections, axis):
+        self.lo = (baseValue - v) % 1
+        self.up = (baseValue + v) % 1
+
+        pixelsSorted = 0
+
+        for s in sections:
+            x0, x1 = s
+
+            I0 = [slice(L) for L in A.shape]
+
+            _logging.log(8, f'Sorting section {s}')
+
+            for i in range(x0, x1):
+                I0[axis] = i
+
+                _logging.log(7, f'Iteration = {iteration} : i = {i} - {s}')
+
+                I = tuple(I0)
+
+                intervals = self.generate(A[I])
+
+                pToSort = sum(map(lambda i: i[1] - i[0], intervals))
+                pixelsSorted += pToSort
+
+        return pixelsSorted / totalPixels
+    
+    def optimizeImage(self, image, baseValue, iterations=3, sectionGenerator=None, goal=0.5, axis=0, doError=False):
+        if sectionGenerator is None:
+            sectionGenerator = FullSectionGenerator(seed=self.seed)
+
+        A = _np.array(image)
+
+        totalPixels = A.shape[0] * A.shape[1]
+
+        xRange = A.shape[axis]
+
+        sections = sectionGenerator.generate(xRange)
+
+        mi, ma = 0.0, 0.5
+
+        for i in range(iterations):
+            v = (mi + ma) / 2
+
+            p = self._test(i, A, v, baseValue, totalPixels, sections, axis)
+
+            if p > goal:
+                ma = v
+            else:
+                mi = v
+        
+        v = (mi + ma) / 2
+
+        if doError:
+            p = self._test(-1, A, v, baseValue, totalPixels, sections, axis)
+
+            _logging.log(8, f'Error - {abs(goal - p)}')
+
+        self.lo = (baseValue - v) % 1
+        self.up = (baseValue + v) % 1
 
     def generate(self, row, *, _doSeed=True):
         super().generate(row, _doSeed=_doSeed)
