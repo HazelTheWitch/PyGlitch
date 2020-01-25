@@ -345,7 +345,7 @@ class PixelFunctionIntervalGenerator(IntervalGenerator):
 
         return pixelsSorted / totalPixels
     
-    def optimizeImage(self, image, baseValue, iterations=3, sectionGenerator=None, goal=0.5, axis=0, doError=False):
+    def optimizeImage(self, image, baseValue, iterations=3, sectionGenerator=None, goal=0.5, axis=0, doError=False, useLerp=True):
         if sectionGenerator is None:
             sectionGenerator = FullSectionGenerator(seed=self.seed)
 
@@ -361,7 +361,10 @@ class PixelFunctionIntervalGenerator(IntervalGenerator):
         miy, may = 0.0, 1.0
 
         for i in range(iterations):
-            v = (goal - miy) * (ma - mi) / (may - miy)
+            if useLerp:
+                v = (goal - miy) * (ma - mi) / (may - miy)
+            else:
+                v = (mi + ma) / 2
 
             p = self._test(i, A, v, baseValue, totalPixels, sections, axis)
 
@@ -372,7 +375,10 @@ class PixelFunctionIntervalGenerator(IntervalGenerator):
                 mi = v
                 miy = p
 
-        v = (goal - miy) * (ma - mi) / (may - miy)
+        if useLerp:
+            v = (goal - miy) * (ma - mi) / (may - miy)
+        else:
+            v = (mi + ma) / 2
 
         if doError:
             p = self._test(-1, A, v, baseValue, totalPixels, sections, axis)
