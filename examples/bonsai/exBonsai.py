@@ -17,7 +17,7 @@ intervalGenerator0 = pyglitch.PixelFunctionIntervalGenerator(
 
 logging.getLogger().setLevel(7)
 
-intervalGenerator0.optimizeImage(_Image.open('bonsai.jpg'), 333/360, goal=0.45, iterations=5 )
+intervalGenerator0.optimizeImage(_Image.open('bonsai.jpg'), 333/360, goal=0.45, iterations=3)
 
 sortingFunction0 = pyglitch.LightnessPixelFunction()
 

@@ -358,18 +358,21 @@ class PixelFunctionIntervalGenerator(IntervalGenerator):
         sections = sectionGenerator.generate(xRange)
 
         mi, ma = 0.0, 0.5
+        miy, may = 0.0, 1.0
 
         for i in range(iterations):
-            v = (mi + ma) / 2
+            v = (goal - miy) * (ma - mi) / (may - miy)
 
             p = self._test(i, A, v, baseValue, totalPixels, sections, axis)
 
             if p > goal:
                 ma = v
+                may = p
             else:
                 mi = v
-        
-        v = (mi + ma) / 2
+                miy = p
+
+        v = (goal - miy) * (ma - mi) / (may - miy)
 
         if doError:
             p = self._test(-1, A, v, baseValue, totalPixels, sections, axis)
