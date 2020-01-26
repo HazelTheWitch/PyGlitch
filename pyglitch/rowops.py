@@ -12,6 +12,8 @@ from .glitchabc import siOr, siAnd, siXor, siMinus, SectionGenerator, OrSectionG
 
 from .siOperations import siOr, siAnd, siXor, siMinus, verifySI
 
+from itertools import count as _count
+
 # Probability Functions
 def _uniformProb(maxY):
     def uniform(y):
@@ -329,7 +331,7 @@ class PixelFunctionIntervalGenerator(IntervalGenerator):
 
             I0 = [slice(L) for L in A.shape]
 
-            _logging.log(8, f'Sorting section {s}')
+            _logging.log(8, f'Testing section {s}')
 
             for i in range(x0, x1):
                 I0[axis] = i
@@ -345,7 +347,12 @@ class PixelFunctionIntervalGenerator(IntervalGenerator):
 
         return pixelsSorted / totalPixels
     
-    def optimizeImage(self, image, baseValue, iterations=3, sectionGenerator=None, goal=0.5, axis=0, doError=False, useLerp=True):
+    def optimizeImage(self, image, baseValue, iterations=None, maxError=0.01, sectionGenerator=None, goal=0.5, axis=0, doError=False, useLerp=True):
+        if iterations is None and maxError is None:
+            raise ValueError('Either iterations or error must not be None')
+
+        image = image.convert('RGB')
+        
         if sectionGenerator is None:
             sectionGenerator = FullSectionGenerator(seed=self.seed)
 
@@ -360,7 +367,12 @@ class PixelFunctionIntervalGenerator(IntervalGenerator):
         mi, ma = 0.0, 0.5
         miy, may = 0.0, 1.0
 
-        for i in range(iterations):
+        if iterations is not None:
+            iterator = range(iterations)
+        else:
+            iterator = _count()
+
+        for i in iterator:
             if useLerp:
                 v = (goal - miy) * (ma - mi) / (may - miy)
             else:
@@ -374,11 +386,13 @@ class PixelFunctionIntervalGenerator(IntervalGenerator):
             else:
                 mi = v
                 miy = p
-
-        if useLerp:
-            v = (goal - miy) * (ma - mi) / (may - miy)
-        else:
-            v = (mi + ma) / 2
+            
+            E = abs(p - goal)
+            _logging.log(
+                8, f'Iteration = {i} : Error = {E} : Max Error = {maxError}')
+            
+            if maxError is not None and E < maxError:
+                break
 
         if doError:
             p = self._test(-1, A, v, baseValue, totalPixels, sections, axis)
@@ -571,6 +585,8 @@ class PixelSortFilter(ImageFilter):
 
     def apply(self, image, mask=None, mCutOff=128, maskAfter=False, angle=0, *, _doSeed=True):
         image = super().apply(image, _doSeed=_doSeed)
+
+        image = image.convert('RGB')
 
         angle = -angle
 
