@@ -7,6 +7,8 @@ import logging as _logging
 
 from .siOperations import siOr, siAnd, siXor, siMinus
 
+from functools import lru_cache as _lru_cache
+
 class SectionGenerator(_ABC):
     """Section Generators create sections based on size
     """
@@ -78,17 +80,14 @@ class PixelFunction(_ABC):
     """Turns a pixel RGB into a single value for sorting or interval definitions
     """
     def __init__(self, coeff=1):
-        self._memoizedValues = {}
         self.coeff = coeff
 
     def getValue(self, r, g, b):
         return 0
 
+    @_lru_cache(maxsize=None)
     def process(self, r, g, b):
-        v = (r, g, b)
-        if v not in self._memoizedValues:
-            self._memoizedValues[v] = self.getValue(r, g, b)
-        return self._memoizedValues[v] * self.coeff
+        return self.getValue(r, g, b) * self.coeff
 
     def __add__(self, O):
         return SumPixelFunction(self, O)

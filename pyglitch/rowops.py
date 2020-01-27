@@ -13,6 +13,7 @@ from .glitchabc import siOr, siAnd, siXor, siMinus, SectionGenerator, OrSectionG
 from .siOperations import siOr, siAnd, siXor, siMinus, verifySI
 
 from itertools import count as _count
+from collections import deque as _deque
 
 # Probability Functions
 def _uniformProb(maxY):
@@ -308,14 +309,18 @@ class UniformIntervalGenerator(SectionBasedIntervalGenerator):
 
 
 class PixelFunctionIntervalGenerator(IntervalGenerator):
-    def __init__(self, pixelFunction, lo=0.2, up=0.8, seed=None):
+    def __init__(self, pixelFunction, lo=0.2, up=0.8, granularity=1, seed=None):
         super().__init__(seed=seed)
         self.pixelFunction = pixelFunction
         self.lo = lo
         self.up = up
 
+        self.granularity = granularity
+
+        self._normal = self.lo <= self.up
+
     def inRange(self, v):
-        if self.lo <= self.up:
+        if self._normal:
             return self.lo <= v <= self.up
         else:
             return not (self.up <= v <= self.lo)
@@ -323,6 +328,8 @@ class PixelFunctionIntervalGenerator(IntervalGenerator):
     def _test(self, iteration, A, v, baseValue, totalPixels, sections, axis):
         self.lo = (baseValue - v) % 1
         self.up = (baseValue + v) % 1
+
+        self._normal = self.lo <= self.up
 
         pixelsSorted = 0
 
@@ -407,20 +414,23 @@ class PixelFunctionIntervalGenerator(IntervalGenerator):
 
         L = row.shape[0]
 
-        intervals = []
+        intervals = _deque()
 
         X = 0
         r = self.pixelFunction.process(*row[0, :])
+        isTuple = False
         if type(r) == tuple:
             r = r[0]
+            isTuple = True
         inSection = self.inRange(r)
 
-        for i in range(1, L):
+        for i in range(1, L, self.granularity):
             r = self.pixelFunction.process(*row[i, :])
-            if type(r) == tuple:
+            if isTuple:
                 r = r[0]
             aboveCutoff = self.inRange(r)
-            if inSection:
+
+            if inSection: # 1410    2.707    0.002    6.298    0.004 rowops.py:411(generate)
                 if not aboveCutoff:
                     intervals.append((X, i))
                     inSection = False
@@ -432,7 +442,7 @@ class PixelFunctionIntervalGenerator(IntervalGenerator):
         if inSection:
             intervals.append((X, L))
 
-        return intervals
+        return list(intervals)
 
 
 class CappingIntervalGenerator(IntervalGenerator):
